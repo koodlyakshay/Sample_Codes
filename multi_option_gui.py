@@ -1,99 +1,8 @@
 import sys
 from Tkinter import *
 
-def msgentry_comp():
-	f.write("REGIME_TYPE= COMPRESSIBLE\n")
-	f.write("REYNOLDS_NUMBER= "+re.get()+"\n")
-	f.write("MACH_NUMBER= "+ma.get()+"\n")
-	f.write("AOA= "+aoa.get()+"\n")
-	f.write("SIDESLIP_ANGLE= "+ss.get()+"\n")
-	f.write("DISCARD_INFILES= "+infile.get()+"\n")
-	f.write("INIT_OPTION= "+init.get()+"\n")
-	f.write("FREESTREAM_OPTION= "+fs.get()+"\n")
-	f.write("FREESTREAM_PRESSURE= "+prfs.get()+"\n")
-	f.write("FREESTREAM_TEMPERATURE= "+tempfs.get()+"\n")
-	f.write("REYNOLDS_LENGTH= "+relen.get()+"\n")
-	
-def msgentry_stdair():
-	f.write("FLUID_MODEL= STANDARD_AIR\n")
-	f.write("GAMMA= 1.4\n")
-	f.write("CRITICAL_TEMPERATURE= 131.0\n")
-	f.write("GAS_CONSTANT= 287.058\n")
-	f.write("CRITICAL_PRESSURE= 3588550.0\n")
-	f.write("ACCENTRIC_FACTOR= 0.035\n")
-
-
-def msgentry_flmodel():
-	f.write("FLUID_MODEL= "+flopt.get()+"\n")
-	f.write("GAMMA= "+gamma.get()+"\n")
-	f.write("CRITICAL_TEMPERATURE= "+t_c.get()+"\n")
-	f.write("GAS_CONSTANT= "+gas_cons.get()+"\n")
-	f.write("CRITICAL_PRESSURE= "+p_c.get()+"\n")
-	f.write("ACCENTRIC_FACTOR= "+a_f.get()+"\n")
-	
-def msgentry_viscmodel():
-	f.write("VISCOSITY_MODEL= SUTHERLAND\n")
-	f.write("MU_REF= "+mu_ref.get()+"\n")
-	f.write("MU_T_REF= "+mu_tref.get()+"\n")
-	f.write("SUTHERLAND_CONSTANT= "+sut_cons.get()+"\n")
-	
-def msgentry_consvisc():
-	f.write("VISCOSITY_MODEL= CONSTANT_VISCOSITY\n")
-	f.write("MU_CONS= "+mu_cons.get()+"\n")
-
-
-
-def msgentry_incomp():
-	f.write("REGIME_TYPE= INCOMPRESSIBLE\n")
-	f.write("FREESTREAM_DENSITY= "+denfs.get()+"\n")
-	f.write("FREESTREAM_VELOCITY= ("+velx.get()+","+vely.get()+","+velz.get()+")\n")
-	f.write("FREESTREAM_VISCOSITY= "+visc.get()+"\n")
-
-def msgentry_basic():
-	f.write("PHYSICAL_PROBLEM= "+prob.get()+"\n")
-	f.write("MATH_PROBLEM= DIRECT \n")
-	f.write("RESTART_SOL= "+rest.get()+"\n")
-	f.write("SYSTEM_MEASUREMENTS= "+si.get()+"\n")
-	
-def msgentry_refval():
-	f.write("REF_NONDIMENSIONALISATION= "+refnondim.get()+"\n")
-	f.write("REF_LENGTH= "+reflen.get()+"\n")
-	f.write("REF_AREA= "+refar.get()+"\n")
-	f.write("REF_ORIGIN_MOMENT_X="+refmomx.get()+"\n")
-	f.write("REF_ORIGIN_MOMENT_Y="+refmomy.get()+"\n")
-	f.write("REF_ORIGIN_MOMENT_Z="+refmomz.get()+"\n")
-	f.write("FREESTREAM_VISCOSITY= "+visc.get()+"\n")
-	
-def msgentry_unsteady():
-	f.write("UNSTEADY_SIMULATION= "+unst.get()+"\n")
-	f.write("UNST_TIMESTEP= "+unst_delt.get()+"\n")
-	f.write("UNST_TIME= "+unst_time.get()+"\n")
-	f.write("UNST_CFL_NUMBER= "+unst_cfl.get()+"\n")
-	f.write("UNST_INT_ITER= "+n_intiter.get()+"\n")
-	f.write("UNST_RESTART_ITER= "+unst_rest.get()+"\n")
-	
-def msgentry_marker():
-	f.write("MARKER_EULER= ("+euler.get()+")\n")
-	f.write("MARKER_SYM= ("+sym.get()+")\n")
-	f.write("MARKER_FAR= ("+far.get()+")\n")
-	f.write("MARKER_INTERNAL= ("+internal.get()+")\n")
-	f.write("MARKER_NEARFIELD= ("+nearfield.get()+")\n")
-	f.write("MARKER_PRESSURE= ("+pressure.get()+")\n")
-	f.write("MARKER_DIRICHLET= ("+dirichlet.get()+")\n")
-	f.write("MARKER_NEUMANN= ("+neumann.get()+")\n")
-	f.write("MARKER_OUTLET= ("+outlet.get()+","+backpr_val.get()+")\n")
-	f.write("MARKER_HEATFLUX= ("+heatflux.get()+","+hflux_val.get()+")\n")
-	f.write("MARKER_ISOTHERMAL= ("+isotherm.get()+","+isot_val.get()+")\n")
-	
-def msgentry_iden():
-	f.write("MARKER_PLOTTING= ("+plotting.get()+")\n")
-	f.write("MARKER_MONITORING= ("+monitor.get()+")\n")
-	f.write("MARKER_DESIGNING= ("+evaluate.get()+")\n")
-	
-
 root = Tk()
-
-f=open(sys.argv[1],"w")
+root.title('SU2 config file')
 
 PROB_OPTIONS = [
 "EULER",
@@ -158,6 +67,97 @@ UNST_OPTIONS = [
 "HARMONIC_BALANCE"
 ]
 
+CONVEC_OPTIONS = [
+"JST", 
+"LAX-FRIEDRICH",
+"CUSP", 
+"ROE",
+"AUSM",
+"HLLC",
+"TURKEL_PREC",
+"MSW"
+]
+
+CONVECTURB_OPTIONS = [
+"SCALAR UPWIND"
+]
+
+TIME_OPTIONS = [
+"EULER_IMPLICIT", 
+"EULER_EXPLICIT",
+"RUNGE_KUTTA"
+]
+
+TIMETURB_OPTIONS = [
+"EULER_IMPLICIT"
+]
+
+SLOPE_OPTIONS = [
+"NONE", 
+"VENKATAKRISHNAN",
+"VENKATAKRISHNAN_WANG", 
+"BARTH_JESPERSEN",
+"VAN_ALBADA_EDGE"
+]
+
+LINSOLVE_OPTIONS = [
+"FGMRES", 
+"BCGSTAB",
+"SMOOTHER_JACOBI", 
+"SMOOTHER_ILU",
+"SMOOTHER_LUSGS",
+"SMOOTHER_LINELET"
+]
+
+LINPREC_OPTIONS = [
+"ILU",
+"JACOBI", 
+"LU_SGS",
+"LINELET"
+]
+
+GRAD_OPTIONS = [
+"GREEN_GAUSS",
+"WEIGHTED_LEAST_SQUARES"
+]
+
+MGCYCLE_OPTIONS = [
+"V_CYCLE",
+"W_CYCLE", 
+"FULLMG_CYCLE"
+]
+
+MGLEVEL_OPTIONS = [
+"0",
+"1", 
+"2",
+"3"
+]
+
+CONVERGE_OPTIONS = [
+"CAUCHY",
+"RESIDUAL"
+]
+
+CAUCHYFUNC_OPTIONS = [
+"DRAG",
+"LIFT",
+"NEARFIELD_PRESS"
+]
+
+FORMAT_OPTIONS = [
+"SU2",
+"CGNS"
+]
+
+OPFORMAT_OPTIONS = [
+"TECPLOT",
+"TECPLOT_BINARY",
+"PARAVIEW",
+"FIELDVIEW",
+"FIELDVIEW_BINARY",
+]
+
 prob = StringVar()
 prob.set(PROB_OPTIONS[0])
 
@@ -193,6 +193,70 @@ refnondim.set(NONDIM_OPTIONS[0])
 
 unst = StringVar()
 unst.set(UNST_OPTIONS[0])
+
+convec = StringVar()
+convec.set(CONVEC_OPTIONS[0])
+
+convecturb = StringVar()
+convecturb.set(CONVECTURB_OPTIONS[0])
+
+slope = StringVar()
+slope.set(SLOPE_OPTIONS[0])
+
+linsolve = StringVar()
+linsolve.set(LINSOLVE_OPTIONS[0])
+
+linprec = StringVar()
+linprec.set(LINPREC_OPTIONS[0])
+
+mg = StringVar()
+mg.set(MGCYCLE_OPTIONS[0])
+
+mglevel = StringVar()
+mglevel.set(MGLEVEL_OPTIONS[0])
+
+grad = StringVar()
+grad.set(GRAD_OPTIONS[0])
+
+cfladapt = StringVar()
+cfladapt.set(YESNO_OPTIONS[0])
+
+timefl = StringVar()
+timefl.set(TIME_OPTIONS[0])
+
+timetr = StringVar()
+timetr.set(TIMETURB_OPTIONS[0])
+
+conv_crit = StringVar()
+conv_crit.set(CONVERGE_OPTIONS[0])
+
+cauchy_func = StringVar()
+cauchy_func.set(CAUCHYFUNC_OPTIONS[0])
+
+mshfrmt = StringVar()
+mshfrmt.set(FORMAT_OPTIONS[0])
+
+opfrmt = StringVar()
+opfrmt.set(OPFORMAT_OPTIONS[0])
+
+mshname = StringVar()
+mshoutname = StringVar()
+mshoutname.set("mesh_out.su2")
+solflname = StringVar()
+solflname.set("solution_flow.dat")
+ophistfile = StringVar()
+ophistfile.set("history")
+brkfile = StringVar()
+brkfile.set("forces_breakdown.dat")
+restflname = StringVar()
+restflname.set("restart_flow.dat")
+restadname = StringVar()
+restadname.set("restart_adj.dat")
+opfile = StringVar()
+opfile.set("flow.dat")
+surffile = StringVar()
+surffile.set("surface_flow.dat")
+
 
 re = StringVar()
 re.set(3E6)
@@ -300,6 +364,249 @@ monitor = StringVar()
 monitor.set(NONE)
 evaluate = StringVar()
 evaluate.set(NONE)
+cfl = StringVar()
+cfl.set(10.0)
+cflup = StringVar()
+cflup.set(0.5)
+cfldown = StringVar()
+cfldown.set(1.5)
+cflmin = StringVar()
+cflmin.set(1.25)
+cflmax = StringVar()
+cflmax.set(50.0)
+maxdt = StringVar()
+maxdt.set(1E6)
+mgpro = StringVar()
+mgpro.set(0.75)
+mgrest = StringVar()
+mgrest.set(0.75)
+mgpre= StringVar()
+mgpre.set("1,1,1,1")
+mgpost= StringVar()
+mgpost.set("1,1,1,1")
+mgcorrec= StringVar()
+mgcorrec.set("1,1,1,1")
+enfix = StringVar()
+enfix.set(0.0)
+relaxfl = StringVar()
+relaxfl.set(0.95)
+relaxtr = StringVar()
+relaxtr.set(0.95)
+cflred = StringVar()
+cflred.set(1.0)
+lfillin = StringVar()
+lfillin.set(0)
+lerror = StringVar()
+lerror.set(1E-6)
+liter = StringVar()
+liter.set(10)
+extiter = StringVar()
+extiter.set(99999)
+res_red = StringVar()
+res_red.set(5)
+res_min = StringVar()
+res_min.set(-8)
+start_iter = StringVar()
+start_iter.set(10)
+cauchy_elem = StringVar()
+cauchy_elem.set(100)
+cauchy_eps = StringVar()
+cauchy_eps.set(1E-10)
+wrtcon = StringVar()
+wrtcon.set(1)
+wrtcondt = StringVar()
+wrtcondt.set(10)
+wrtsol = StringVar()
+wrtsol.set(1000)
+wrtsoldt = StringVar()
+wrtsoldt.set(1)
+
+def msgentry_comp():
+	f.write("%--------Compressible flow parameters-----------%\n")
+	f.write("REGIME_TYPE= COMPRESSIBLE\n")
+	f.write("REYNOLDS_NUMBER= "+re.get()+"\n")
+	f.write("MACH_NUMBER= "+ma.get()+"\n")
+	f.write("AOA= "+aoa.get()+"\n")
+	f.write("SIDESLIP_ANGLE= "+ss.get()+"\n")
+	f.write("DISCARD_INFILES= "+infile.get()+"\n")
+	f.write("INIT_OPTION= "+init.get()+"\n")
+	f.write("FREESTREAM_OPTION= "+fs.get()+"\n")
+	f.write("FREESTREAM_PRESSURE= "+prfs.get()+"\n")
+	f.write("FREESTREAM_TEMPERATURE= "+tempfs.get()+"\n")
+	f.write("REYNOLDS_LENGTH= "+relen.get()+"\n")
+	
+def msgentry_stdair():
+	f.write("%--------Fluid model parameters-----------%\n")
+	f.write("FLUID_MODEL= STANDARD_AIR\n")
+	f.write("GAMMA= 1.4\n")
+	f.write("CRITICAL_TEMPERATURE= 131.0\n")
+	f.write("GAS_CONSTANT= 287.058\n")
+	f.write("CRITICAL_PRESSURE= 3588550.0\n")
+	f.write("ACCENTRIC_FACTOR= 0.035\n")
+
+
+def msgentry_flmodel():
+	f.write("%--------Fluid Model parameters-----------%\n")
+	f.write("FLUID_MODEL= "+flopt.get()+"\n")
+	f.write("GAMMA= "+gamma.get()+"\n")
+	f.write("CRITICAL_TEMPERATURE= "+t_c.get()+"\n")
+	f.write("GAS_CONSTANT= "+gas_cons.get()+"\n")
+	f.write("CRITICAL_PRESSURE= "+p_c.get()+"\n")
+	f.write("ACCENTRIC_FACTOR= "+a_f.get()+"\n")
+	
+def msgentry_viscmodel():
+	f.write("%--------Viscosity model parameters-----------%\n")
+	f.write("VISCOSITY_MODEL= SUTHERLAND\n")
+	f.write("MU_REF= "+mu_ref.get()+"\n")
+	f.write("MU_T_REF= "+mu_tref.get()+"\n")
+	f.write("SUTHERLAND_CONSTANT= "+sut_cons.get()+"\n")
+	
+def msgentry_consvisc():
+	f.write("%--------Viscosity model parameters-----------%\n")
+	f.write("VISCOSITY_MODEL= CONSTANT_VISCOSITY\n")
+	f.write("MU_CONS= "+mu_cons.get()+"\n")
+
+
+
+def msgentry_incomp():
+	f.write("%--------Incompressible flow parameters-----------%\n")
+	f.write("REGIME_TYPE= INCOMPRESSIBLE\n")
+	f.write("FREESTREAM_DENSITY= "+denfs.get()+"\n")
+	f.write("FREESTREAM_VELOCITY= ("+velx.get()+","+vely.get()+","+velz.get()+")\n")
+	f.write("FREESTREAM_VISCOSITY= "+visc.get()+"\n")
+
+def msgentry_basic():
+	f.write("%--------Problem definition-----------%\n")
+	f.write("PHYSICAL_PROBLEM= "+prob.get()+"\n")
+	f.write("MATH_PROBLEM= DIRECT \n")
+	f.write("KIND_TURB_MODEL= "+turb.get()+"\n")
+	f.write("RESTART_SOL= "+rest.get()+"\n")
+	f.write("SYSTEM_MEASUREMENTS= "+si.get()+"\n")
+	
+def msgentry_refval():
+	f.write("%--------Reference value definition-----------%\n")
+	f.write("REF_NONDIMENSIONALISATION= "+refnondim.get()+"\n")
+	f.write("REF_LENGTH= "+reflen.get()+"\n")
+	f.write("REF_AREA= "+refar.get()+"\n")
+	f.write("REF_ORIGIN_MOMENT_X="+refmomx.get()+"\n")
+	f.write("REF_ORIGIN_MOMENT_Y="+refmomy.get()+"\n")
+	f.write("REF_ORIGIN_MOMENT_Z="+refmomz.get()+"\n")
+	f.write("FREESTREAM_VISCOSITY= "+visc.get()+"\n")
+	
+def msgentry_unsteady():
+	f.write("%--------Unsteady simulation parameters-----------%\n")
+	f.write("UNSTEADY_SIMULATION= "+unst.get()+"\n")
+	f.write("UNST_TIMESTEP= "+unst_delt.get()+"\n")
+	f.write("UNST_TIME= "+unst_time.get()+"\n")
+	f.write("UNST_CFL_NUMBER= "+unst_cfl.get()+"\n")
+	f.write("UNST_INT_ITER= "+n_intiter.get()+"\n")
+	f.write("UNST_RESTART_ITER= "+unst_rest.get()+"\n")
+	
+def msgentry_marker():
+	f.write("%--------Boundary conditions-----------%\n")
+	f.write("MARKER_EULER= ("+euler.get()+")\n")
+	f.write("MARKER_SYM= ("+sym.get()+")\n")
+	f.write("MARKER_FAR= ("+far.get()+")\n")
+	f.write("MARKER_INTERNAL= ("+internal.get()+")\n")
+	f.write("MARKER_NEARFIELD= ("+nearfield.get()+")\n")
+	f.write("MARKER_PRESSURE= ("+pressure.get()+")\n")
+	f.write("MARKER_DIRICHLET= ("+dirichlet.get()+")\n")
+	f.write("MARKER_NEUMANN= ("+neumann.get()+")\n")
+	f.write("MARKER_OUTLET= ("+outlet.get()+","+backpr_val.get()+")\n")
+	f.write("MARKER_HEATFLUX= ("+heatflux.get()+","+hflux_val.get()+")\n")
+	f.write("MARKER_ISOTHERMAL= ("+isotherm.get()+","+isot_val.get()+")\n")
+	
+def msgentry_iden():
+	f.write("%--------Monitioring solution-----------%\n")
+	f.write("MARKER_PLOTTING= ("+plotting.get()+")\n")
+	f.write("MARKER_MONITORING= ("+monitor.get()+")\n")
+	f.write("MARKER_DESIGNING= ("+evaluate.get()+")\n")
+	
+def msgentry_spacenum():
+	f.write("%--------Flow numerical method definition-----------%\n")
+	f.write("CONV_NUM_METHOD_FLOW= "+convec.get()+"\n")
+	f.write("NUM_METHOD_GRAD= "+grad.get()+"\n")
+	f.write("SLOPE_LIMITER_FLOW= "+slope.get()+"\n")
+	f.write("TIME_DISCRE_FLOW= "+timefl.get()+"\n")
+	f.write("CFL_NUMBER= "+cfl.get()+"\n")
+	f.write("CFL_ADAPT= "+cfladapt.get()+"\n")
+	f.write("CFL_ADAPT_PARAM= ("+cfldown.get()+","+cflup.get()+","+cflmin.get()+","+cflmax.get()+")\n")
+	f.write("MAX_DELTA_TIME= "+maxdt.get()+"\n")
+	f.write("ENTROPY_FIX_COEFF= "+enfix.get()+"\n")
+	f.write("RELAXATION_FACTOR_FLOW= "+relaxfl.get()+"\n")
+	f.write("%--------Turbulent numerical method definition-----------%\n")
+	f.write("CONV_NUM_METHOD_TURB= "+convecturb.get()+"\n")
+	f.write("TIME_DISCRE_TURB= "+timetr.get()+"\n")
+	f.write("RELAXATION_FACTOR_TURB= "+relaxtr.get()+"\n")
+	f.write("CFL_REDUCTION_TURB= "+cflred.get()+"\n")
+	
+	
+def msgentry_linsolver():
+	f.write("%--------Linear solver parameters-----------%\n")
+	f.write("LINEAR_SOLVER= "+linsolve.get()+"\n")
+	f.write("LINEAR_SOLVER_PREC= "+linprec.get()+"\n")
+	f.write("LINEAR_SOLVER_ILU_FILL_IN= "+lfillin.get()+"\n")
+	f.write("LINEAR_SOLVER_ERROR= "+lerror.get()+"\n")
+	f.write("LINEAR_SOLVER_ITER= "+liter.get()+"\n")
+	
+def msgentry_mg():
+	f.write("%--------Multigrid parameters-----------%\n")
+	f.write("MGLEVEL= "+mglevel.get()+"\n")
+	f.write("MGCYCLE= "+mg.get()+"\n")
+	f.write("MG_PRE_SMOOTH= ("+mgpre.get()+")\n")
+	f.write("MG_POST_SMOOTH= ("+mgpost.get()+")\n")
+	f.write("MG_CORRECTION_SMOOTH= ("+mgcorrec.get()+")\n")
+	f.write("MG_DAMP_RESTRICTION= "+mgrest.get()+"\n")
+	f.write("MG_DAMP_PROLONGATION= "+mgpro.get()+"\n")
+	
+def msgentry_converge():
+	f.write("%--------Convergence criteria-----------%\n")
+	f.write("EXTITER= "+extiter.get()+"\n")
+	f.write("STARTCONV_ITER= "+start_iter.get()+"\n")
+
+def msgentry_cauchy():
+	msgentry_converge()
+	f.write("CONV_CRITERIA= CAUCHY\n")
+	f.write("CAUCHY_ELEMS= "+cauchy_elem.get()+"\n")
+	f.write("CAUCHY_EPS= "+cauchy_eps.get()+"\n")
+	f.write("CAUCHY_FUNC_FLOW= "+cauchy_func.get()+"\n")
+	
+def msgentry_residual():
+	msgentry_converge()
+	f.write("CONV_CRITERIA= RESIDUAL\n")
+	f.write("RESIDUAL_REDUCTION= "+cauchy_elem.get()+"\n")
+	f.write("RESIDUAL_MINVAL= "+cauchy_eps.get()+"\n")
+
+
+def msgentry_ioinfo():
+	f.write("%--------Input/Output information-----------%\n")
+	f.write("MESH_FILENAME= "+mshname.get()+"\n")
+	f.write("MESH_FORMAT= "+mshfrmt.get()+"\n")
+	f.write("SOLUTION_FLOW_FILENAME= "+solflname.get()+"\n")
+	f.write("OUTPUT_FORMAT= "+opfrmt.get()+"\n")
+	f.write("CONV_FILENAME= "+ophistfile.get()+"\n")
+	f.write("BREAKDOWN_FILENAME= "+brkfile.get()+"\n")
+	f.write("RESTART_FLOW_FILENAME= "+restflname.get()+"\n")
+	f.write("VOLUME_FLOW_FILENAME= "+opfile.get()+"\n")
+	f.write("SURFACE_FLOW_FILENAME= "+surffile.get()+"\n")
+	f.write("WRT_SOL_FREQ= "+wrtsol.get()+"\n")
+	f.write("WRT_SOL_FREQ_DUALTIME= "+wrtsoldt.get()+"\n")
+	f.write("WRT_CONV_FREQ= "+wrtcon.get()+"\n")
+	f.write("WRT_CONV_FREQ_DUALTIME= "+wrtcondt.get()+"\n")
+	f.write("WRT_RESIDUALS= NO\n")
+	f.write("WRT_LIMITERS= NO\n")
+	f.write("WRT_SURFACE= NO\n")
+	f.write("LOW_MEMORY_OUTPUT= NO\n")
+	f.write("CONSOLE_OUTPUT_VERBOSITY= HIGH\n")
+	f.write("WRT_BINARY_RESTART= YES\n")
+	f.write("READ_BINARY_RESTART= NO\n")
+	
+	
+
+
+f=open(sys.argv[1],"w")
+
+
 
 def incompressible_window():
 	incomp_win=Toplevel()
@@ -330,8 +637,9 @@ def incompressible_window():
 	entry2.grid(row=index,column=1)
 	index=index+1
 	
-	button = Button(incomp_win,text="Enter values",command=msgentry_incomp)
-	button.grid(row=index,column=0)
+	button = Button(incomp_win,text="Update cfg file",command=msgentry_incomp)
+	button.grid(row=index,column=1)
+	index+=1
 	button = Button(incomp_win,text="Back",command=incomp_win.destroy)
 	button.grid(row=index,column=1)
 
@@ -404,7 +712,9 @@ def compressible_window():
 	entry2 = Entry(second_win,textvariable=relen)
 	entry2.grid(row=index,column=1)
 	index=index+1
-    
+	button = Button(second_win,text="Update cfg file",command=msgentry_comp)
+	button.grid(row=index,column=1)
+	index=index+1
     
 	label1 = Label(second_win, text="Fluid Model: ")
 	label1.grid(row=index,column=0)
@@ -422,8 +732,7 @@ def compressible_window():
 	button.grid(row=index,column=2)
 	index=index+1 
      
-	button = Button(second_win,text="Enter values",command=msgentry_comp)
-	button.grid(row=index,column=0)
+	
 	button = Button(second_win,text="Back",command=second_win.destroy)
 	button.grid(row=index,column=1)
 	
@@ -436,8 +745,9 @@ def get_consvisc():
 	entry2 = Entry(consvisc_win,textvariable=mu_cons)
 	entry2.grid(row=index,column=1)
 	index=index+1
-	button = Button(consvisc_win,text="Write",command=msgentry_consvisc)
-	button.grid(row=index,column=0)
+	button = Button(consvisc_win,text="Update cfg file",command=msgentry_consvisc)
+	button.grid(row=index,column=1)
+	index=index+1
 	button = Button(consvisc_win,text="Back",command=consvisc_win.destroy)
 	button.grid(row=index,column=1)
 	
@@ -465,8 +775,9 @@ def viscmodel_window():
 	entry2.grid(row=index,column=1)
 	index=index+1
 	
-	button = Button(viscmodel_win,text="Enter values",command=msgentry_viscmodel)
-	button.grid(row=index,column=0)
+	button = Button(viscmodel_win,text="Update cfg file",command=msgentry_viscmodel)
+	button.grid(row=index,column=1)
+	index=index+1
 	button = Button(viscmodel_win,text="Back",command=viscmodel_win.destroy)
 	button.grid(row=index,column=1)
 
@@ -514,8 +825,9 @@ def flmodel_window():
 	entry2.grid(row=index,column=1)
 	index=index+1
 	
-	button = Button(flmodel_win,text="Enter values",command=msgentry_flmodel)
-	button.grid(row=index,column=0)
+	button = Button(flmodel_win,text="Update cfg file",command=msgentry_flmodel)
+	button.grid(row=index,column=1)
+	index=index+1
 	button = Button(flmodel_win,text="Back",command=flmodel_win.destroy)
 	button.grid(row=index,column=1)
 	
@@ -561,8 +873,9 @@ def define_refvalues():
 	opt1.grid(row=index,column=1)
 	index=index+1
 	
-	button = Button(ref_win,text="Enter values",command=msgentry_refval)
-	button.grid(row=index,column=0)
+	button = Button(ref_win,text="Update cfg file",command=msgentry_refval)
+	button.grid(row=index,column=1)
+	index=index+1
 	button = Button(ref_win,text="Back",command=ref_win.destroy)
 	button.grid(row=index,column=1)
 	
@@ -608,8 +921,9 @@ def define_unsteady():
 	entry2.grid(row=index,column=1)
 	index=index+1
 	
-	button = Button(unsteady_win,text="Enter values",command=msgentry_unsteady)
-	button.grid(row=index,column=0)
+	button = Button(unsteady_win,text="Update cfg file",command=msgentry_unsteady)
+	button.grid(row=index,column=1)
+	index=index+1
 	button = Button(unsteady_win,text="Back",command=unsteady_win.destroy)
 	button.grid(row=index,column=1)
 	
@@ -700,8 +1014,9 @@ def define_markers():
 	entry2.grid(row=index,column=1)
 	index=index+1
 	
-	button = Button(marker_win,text="Enter values",command=msgentry_marker)
-	button.grid(row=index,column=0)
+	button = Button(marker_win,text="Update cfg file",command=msgentry_marker)
+	button.grid(row=index,column=1)
+	index=index+1
 	button = Button(marker_win,text="Back",command=marker_win.destroy)
 	button.grid(row=index,column=1)
 	
@@ -729,10 +1044,381 @@ def define_iden_markers():
 	entry2.grid(row=index,column=1)
 	index=index+1
 	
-	button = Button(iden_win,text="Enter values",command=msgentry_iden)
-	button.grid(row=index,column=0)
+	button = Button(iden_win,text="Update cfg file",command=msgentry_iden)
+	button.grid(row=index,column=1)
+	index=index+1
 	button = Button(iden_win,text="Back",command=iden_win.destroy)
 	button.grid(row=index,column=1)
+
+def define_spacenum():
+	space_win = Toplevel()
+	space_win.title("Space Discretization")
+	
+	index = 1
+	
+	label1 = Label(space_win, text="Convective numerical method: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(space_win,convec,*CONVEC_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label1 = Label(space_win, text="Gradient method: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(space_win,grad,*GRAD_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label1 = Label(space_win, text="Time discretization: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(space_win,timefl,*TIME_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(space_win, text="CFL number: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(space_win,textvariable=cfl)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(space_win, text="External iterations: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(space_win,textvariable=extiter)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(space_win, text="Start Convergence criteria in iteration: ")
+	label2.grid(row=index,columnspan=2)
+	entry2 = Entry(space_win,textvariable=start_iter)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label1 = Label(space_win, text="CFL Adapt: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(space_win,cfladapt,*YESNO_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label3 = Label(space_win, text="CFL Adapt parameters")
+	label3.grid(row=index,column=0)
+	index = index+1
+	label3 = Label(space_win, text="Factor down")
+	label3.grid(row=index,column=0)
+	label3 = Label(space_win, text="Factor up")
+	label3.grid(row=index,column=1)
+	label3 = Label(space_win, text="CFL min")
+	label3.grid(row=index,column=2)
+	label3 = Label(space_win, text="CFL max")
+	label3.grid(row=index,column=3)
+	index = index+1
+
+	entry2 = Entry(space_win,textvariable=cfldown)
+	entry2.grid(row=index,column=0)
+	entry2 = Entry(space_win,textvariable=cflup)
+	entry2.grid(row=index,column=1)
+	entry2 = Entry(space_win,textvariable=cflmin)
+	entry2.grid(row=index,column=2)
+	entry2 = Entry(space_win,textvariable=cflmax)
+	entry2.grid(row=index,column=3)
+	index=index+1
+	
+	label2 = Label(space_win, text="Maximum time in local time stepping: ")
+	label2.grid(row=index,columnspan=2)
+	entry2 = Entry(space_win,textvariable=maxdt)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label2 = Label(space_win, text="Entropy fix coefficient: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(space_win,textvariable=enfix)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(space_win, text="Relaxation coefficient (flow): ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(space_win,textvariable=relaxfl)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label1 = Label(space_win, text="Turbulent convective method: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(space_win,convecturb,*CONVECTURB_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label1 = Label(space_win, text="Time discretization(turb): ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(space_win,timetr,*TIMETURB_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(space_win, text="Relaxation coefficient (turb): ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(space_win,textvariable=relaxtr)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(space_win, text="CFL Reduction factor (turb): ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(space_win,textvariable=cflred)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	button = Button(space_win,text="Update cfg file",command=msgentry_spacenum)
+	button.grid(row=index,column=1)
+	index=index+2
+	
+	label1 = Label(space_win, text="Multigrid parameters: ")
+	label1.grid(row=index,column=0)
+	button = Button(space_win,text="Define",command=define_mg)
+	button.grid(row=index,column=1)
+	index+=1
+	
+	button = Button(space_win,text="Back",command=space_win.destroy)
+	button.grid(row=index,column=1)
+	
+def define_mg():
+	mg_win = Toplevel()
+	mg_win.title("Multigrid parameters")
+	
+	index = 1
+	label1 = Label(mg_win, text="MG LEVEL: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(mg_win,mglevel,*MGLEVEL_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label1 = Label(mg_win, text="MG CYCLE: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(mg_win,mg,*MGCYCLE_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(mg_win, text="Pre-Smoothing: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(mg_win,textvariable=mgpre)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(mg_win, text="Post-Smoothing: ")
+	label2.grid(row=index,column=0)
+	entry3 = Entry(mg_win,textvariable=mgpost)
+	entry3.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(mg_win, text="Correction smoothing: ")
+	label2.grid(row=index,column=0)
+	entry4 = Entry(mg_win,textvariable=mgcorrec)
+	entry4.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(mg_win, text="Restriction damping factor: ")
+	label2.grid(row=index,column=0)
+	entry4 = Entry(mg_win,textvariable=mgrest)
+	entry4.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(mg_win, text="Prolongation damping factor: ")
+	label2.grid(row=index,column=0)
+	entry4 = Entry(mg_win,textvariable=mgpro)
+	entry4.grid(row=index,column=1)
+	index=index+1
+	
+	button = Button(mg_win,text="Update cfg file",command=msgentry_mg)
+	button.grid(row=index,column=1)
+	index=index+1
+	button = Button(mg_win,text="Back",command=mg_win.destroy)
+	button.grid(row=index,column=1)
+	
+def define_linsol():
+	lsol_win=Toplevel()
+	lsol_win.title("Linear solver definition")
+	index = 1
+	
+	label1 = Label(lsol_win, text="Linear solver: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(lsol_win,linsolve,*LINSOLVE_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label1 = Label(lsol_win, text="Preconditioner: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(lsol_win,linprec,*LINPREC_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(lsol_win, text="ILU Preconditioner fill-in: ")
+	label2.grid(row=index,columnspan=2)
+	entry2 = Entry(lsol_win,textvariable=lfillin)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label2 = Label(lsol_win, text="Minimum error for implicit: ")
+	label2.grid(row=index,columnspan=2)
+	entry2 = Entry(lsol_win,textvariable=lerror)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label2 = Label(lsol_win, text="Max iterations of linear solver for implicit: ")
+	label2.grid(row=index,columnspan=2)
+	entry2 = Entry(lsol_win,textvariable=liter)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	button = Button(lsol_win,text="Update cfg file",command=msgentry_linsolver)
+	button.grid(row=index,column=1)
+	index=index+1
+	button = Button(lsol_win,text="Back",command=lsol_win.destroy)
+	button.grid(row=index,column=1)
+	
+def define_cauchy():
+	cauchy_win=Toplevel()
+	cauchy_win.title("Cauchy convergence parameters")
+	index = 1	
+
+	label2 = Label(cauchy_win, text="Cauchy Elements: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(cauchy_win,textvariable=cauchy_elem)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(cauchy_win, text="Epsilon: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(cauchy_win,textvariable=cauchy_eps)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(cauchy_win, text="Cauchy functions: ")
+	label2.grid(row=index,column=0)
+	opt1 = OptionMenu(cauchy_win,cauchy_func,*CAUCHYFUNC_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	button = Button(cauchy_win,text="Update cfg file",command=msgentry_cauchy)
+	button.grid(row=index,column=1)
+	index=index+1
+	button = Button(cauchy_win,text="Back",command=cauchy_win.destroy)
+	button.grid(row=index,column=1)
+
+
+def define_residual():
+	res_win=Toplevel()
+	res_win.title("Residual convergence parameters")
+	index = 1	
+	label2 = Label(res_win, text="Residual reduction: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(res_win,textvariable=res_red)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(res_win, text="Min value of residual: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(res_win,textvariable=res_min)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	button = Button(res_win,text="Update cfg file",command=msgentry_residual)
+	button.grid(row=index,column=1)
+	index=index+1
+	button = Button(res_win,text="Back",command=res_win.destroy)
+	button.grid(row=index,column=1)
+
+
+def define_ioinfo():
+	io_win=Toplevel()
+	io_win.title("Input/Output information")
+	index = 1
+	
+	label2 = Label(io_win, text="Mesh input file: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=mshname)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Mesh format: ")
+	label2.grid(row=index,column=0)
+	opt1 = OptionMenu(io_win,mshfrmt,*FORMAT_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Mesh output file: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=mshoutname)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Restart flow input file: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=solflname)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Output file format: ")
+	label2.grid(row=index,column=0)
+	opt1 = OptionMenu(io_win,opfrmt,*OPFORMAT_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Convergence history file(w/o extension): ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=ophistfile)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Forces breakdown file: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=brkfile)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Restart flow output file: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=restflname)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Flow variable output file: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=opfile)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Surface flow coefficient output file: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=surffile)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Writing solution file frequency: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=wrtsol)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Solution file frequency(dual time): ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=wrtsoldt)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Convergency history frequency: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=wrtcon)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label2 = Label(io_win, text="Convergency history frequency(dual time): ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(io_win,textvariable=wrtcondt)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	button = Button(io_win,text="Update cfg file",command=msgentry_ioinfo)
+	button.grid(row=index,column=1)
+	index=index+1
+	button = Button(io_win,text="Back",command=io_win.destroy)
+	button.grid(row=index,column=1)
+
+
 
 index = 1
 label1 = Label(root, text="Problem Type: ")
@@ -747,10 +1433,20 @@ opt1 = OptionMenu(root,rest,*YESNO_OPTIONS)
 opt1.grid(row=index,column=1)
 index=index+1
 
+label1 = Label(root, text="Turbulence Model: ")
+label1.grid(row=index,column=0)
+opt1 = OptionMenu(root,turb,*TURB_OPTIONS)
+opt1.grid(row=index,column=1)
+index=index+1
+
 label1 = Label(root, text="System of Measurements: ")
 label1.grid(row=index,column=0)
 opt1 = OptionMenu(root,si,*SI_OPTIONS)
 opt1.grid(row=index,column=1)
+index=index+1
+
+button = Button(root,text="Update cfg file",command=msgentry_basic)
+button.grid(row=index,column=1)
 index=index+1
 
 label = Label(root, text="Regime Type: ")
@@ -773,6 +1469,14 @@ button = Button(root,text="Define steady/unsteady parameters",command=define_uns
 button.grid(row=index,column=1)
 index+=1
 
+label = Label(root, text="Numerical Methods: ")
+label.grid(row=index,column=0)
+button = Button(root,text="Discretization",command=define_spacenum)
+button.grid(row=index,column=1)
+button = Button(root,text="Linear solver",command=define_linsol)
+button.grid(row=index,column=2)
+index+=1
+
 label = Label(root, text="Marker attributes: ")
 label.grid(row=index,column=0)
 button = Button(root,text="Define markers",command=define_markers)
@@ -781,10 +1485,23 @@ button = Button(root,text="Define surface identification ",command=define_iden_m
 button.grid(row=index,column=2)
 index+=1
 
-button = Button(root,text="Write values",command=msgentry_basic)
+label = Label(root, text="Convergence parameters: ")
+label.grid(row=index,column=0)
+button = Button(root,text="Cauchy",command=define_cauchy)
 button.grid(row=index,column=1)
+button = Button(root,text="Residual ",command=define_residual)
+button.grid(row=index,column=2)
+index+=1
+
+label = Label(root, text="Input/Output information: ")
+label.grid(row=index,column=0)
+button = Button(root,text="Define",command=define_ioinfo)
+button.grid(row=index,column=1)
+
+index+=1
+
 button = Button(root,text="Exit",command=root.quit)
-button.grid(row=index,column=3)
+button.grid(row=index,column=2)
 index+=1
 
 root.mainloop()

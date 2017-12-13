@@ -13,15 +13,16 @@ class FirstGUI:
 				
 		self.master = master
 		master.title("A simple GUI")
+		
 			
-		#self.label = Label(master, text="Hello World")
+		self.label = Label(master, text="Default Values are already present")
 		#self.label.pack()
-		self.label_index = 0
-		self.label_text = StringVar()
-		self.label_text.set(self.LABEL_TEXT[self.label_index])
-		self.label = Label(master, textvariable=self.label_text)
-		self.label.bind("<Button-1>", self.cycle_label_text)
-		self.label.pack()
+		#self.label_index = 0
+		#self.label_text = StringVar()
+		#self.label_text.set(self.LABEL_TEXT[self.label_index])
+		#self.label = Label(master, textvariable=self.label_text)
+		#self.label.bind("<Button-1>", self.cycle_label_text)
+		#self.label.pack()
 		
 		self.label.grid(columnspan=3, sticky=W)
 		
@@ -46,7 +47,8 @@ def printmsg():
 root = Tk()
 my_gui = FirstGUI(root)		
 
-
+root.geometry("1500x1000+50+50")
+#root.pack(expand=True)
 menu_bar = Menu(root)
 
 file_menu = Menu(menu_bar, tearoff=0)
@@ -56,7 +58,7 @@ file_menu.add_command(label="HAha", command=printmsg)
 
 menu_bar.add_cascade(label="File", menu=file_menu)
 
-root.config(menu=menu_bar)
+#root.config(menu=menu_bar)
 
 
 f = open(sys.argv[1],"w")
@@ -73,8 +75,6 @@ def msgentry():
 	f.write("AOA= "+aoa.get()+"\n")
 	f.write("SIDESLIP_ANGLE= "+ss.get()+"\n")
 	f.write("DISCARD_INFILES= "+infile.get()+"\n")
-	f.write("FIXED_CL_MODE= "+clmode.get()+"\n")
-	f.write("TARGET_CL= "+tcl.get()+"\n")
 	f.write("INIT_OPTION= "+init.get()+"\n")
 	f.write("FREESTREAM_OPTION= "+fs.get()+"\n")
 	f.write("FREESTREAM_PRESSURE= "+prfs.get()+"\n")
@@ -82,7 +82,10 @@ def msgentry():
 	f.write("REYNOLDS_LENGTH= "+relen.get()+"\n")
 	f.write("FREESTREAM_DENSITY= "+denfs.get()+"\n")
 	f.write("FREESTREAM_VELOCITY= ("+velx.get()+","+vely.get()+","+velz.get()+")\n")
-	
+	f.write("FIXED_CL_MODE= "+clmode.get()+"\n")
+	f.write("TARGET_CL= "+tcl.get()+"\n")
+	f.write("DCL_DALPHA= "+dcldal.get()+"\n")
+	f.write("UPDATE_ALPHA= "+alphaupd.get()+"\n")
 
 PROB_OPTIONS = [
 "EULER",
@@ -177,7 +180,16 @@ vely = StringVar()
 vely.set(0.0)
 velz = StringVar()
 velz.set(0.0)
-
+dcldal = StringVar()
+dcldal.set(0.0)
+alphaupd = StringVar()
+alphaupd.set(5)
+refmomx = StringVar()
+refmomx.set(0.25)
+refmomy = StringVar()
+refmomy.set(0.0)
+refmomz = StringVar()
+refmomz.set(0.0)
 
 label1 = Label(root, text="Problem Type: ")
 label1.grid(row=index,column=0)
@@ -211,7 +223,7 @@ index=index+1
 
 label3 = Label(root, text="-------Compressible Freestream definition-------")
 label3.grid(row=index,columnspan=3)
-index = index+2
+index = index+1
 
 label2 = Label(root, text="Reynolds number: ")
 label2.grid(row=index,column=0)
@@ -241,18 +253,6 @@ label1 = Label(root, text="Discard info files: ")
 label1.grid(row=index,column=0)
 opt1 = OptionMenu(root,infile,*YESNO_OPTIONS)
 opt1.grid(row=index,column=1)
-index=index+1
-
-label1 = Label(root, text="Fixed Cl mode: ")
-label1.grid(row=index,column=0)
-opt1 = OptionMenu(root,clmode,*YESNO_OPTIONS)
-opt1.grid(row=index,column=1)
-index=index+1
-
-label2 = Label(root, text="Target Cl: ")
-label2.grid(row=index,column=0)
-entry2 = Entry(root,textvariable=tcl)
-entry2.grid(row=index,column=1)
 index=index+1
 
 label3 = Label(root, text="Init option to choose between Reynolds and thermodynamic quantities")
@@ -293,7 +293,7 @@ index=index+1
 
 label3 = Label(root, text="-------Incompressible Freestream definition-------")
 label3.grid(row=index,columnspan=3)
-index = index+2
+index = index+1
 
 label2 = Label(root, text="Freestream Density: ")
 label2.grid(row=index,column=0)
@@ -310,6 +310,50 @@ entry2.grid(row=index,column=0)
 entry2 = Entry(root,textvariable=vely)
 entry2.grid(row=index,column=1)
 entry2 = Entry(root,textvariable=velz)
+entry2.grid(row=index,column=2)
+index=index+1
+
+label3 = Label(root, text="-------CL and CM driver information-------")
+label3.grid(row=index,columnspan=3)
+index = index+2
+
+label1 = Label(root, text="Fixed Cl mode: ")
+label1.grid(row=index,column=0)
+opt1 = OptionMenu(root,clmode,*YESNO_OPTIONS)
+opt1.grid(row=index,column=1)
+index=index+1
+
+label2 = Label(root, text="Target Cl: ")
+label2.grid(row=index,column=0)
+entry2 = Entry(root,textvariable=tcl)
+entry2.grid(row=index,column=1)
+index=index+1
+
+label2 = Label(root, text="dCl/dalpha estimation: ")
+label2.grid(row=index,column=0)
+entry2 = Entry(root,textvariable=dcldal)
+entry2.grid(row=index,column=1)
+index=index+1
+
+label2 = Label(root, text="Update Alpha in fix Cl: ")
+label2.grid(row=index,column=0)
+entry2 = Entry(root,textvariable=alphaupd)
+entry2.grid(row=index,column=1)
+index=index+1
+
+label3 = Label(root, text="-------Reference Value Defintion-------")
+label3.grid(row=index,columnspan=3)
+index = index+1
+
+label3 = Label(root, text="Reference Origin Moment (x,y,z)")
+label3.grid(row=index,column=0)
+index = index+1
+
+entry2 = Entry(root,textvariable=refmomx)
+entry2.grid(row=index,column=0)
+entry2 = Entry(root,textvariable=refmomy)
+entry2.grid(row=index,column=1)
+entry2 = Entry(root,textvariable=refmomz)
 entry2.grid(row=index,column=2)
 index=index+1
 

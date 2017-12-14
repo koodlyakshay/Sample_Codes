@@ -1,5 +1,7 @@
 This is a very crude attempt at making a GUI to write config files for SU2.
-Need python's tkinter package
+
+Need python's tkinter package.
+
 At the moment, the GUI can only write cfg files for some limited scenarios.
 
 To use:

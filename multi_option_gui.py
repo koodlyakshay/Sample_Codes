@@ -158,6 +158,14 @@ OPFORMAT_OPTIONS = [
 "FIELDVIEW_BINARY",
 ]
 
+GRIDMOV_OPTIONS = [
+"RIGID_MOTION",
+"DEFORMING",
+"MOVING_WALL",
+"STEADY_TRANSLATION",
+"GUST",
+]
+
 prob = StringVar()
 prob.set(PROB_OPTIONS[0])
 
@@ -238,6 +246,12 @@ mshfrmt.set(FORMAT_OPTIONS[0])
 
 opfrmt = StringVar()
 opfrmt.set(OPFORMAT_OPTIONS[0])
+
+gridmov = StringVar()
+gridmov.set(YESNO_OPTIONS[0])
+
+gridkind = StringVar()
+gridkind.set(GRIDMOV_OPTIONS[0])
 
 mshname = StringVar()
 mshoutname = StringVar()
@@ -421,6 +435,71 @@ wrtsol.set(1000)
 wrtsoldt = StringVar()
 wrtsoldt.set(1)
 
+morgx = StringVar()
+morgx.set(1.0)
+morgy = StringVar()
+morgy.set(0.0)
+morgz = StringVar()
+morgz.set(0.0)
+
+rrx = StringVar()
+rrx.set(1.0)
+rry = StringVar()
+rry.set(0.0)
+rrz = StringVar()
+rrz.set(0.0)
+
+pampx = StringVar()
+pampx.set(1.0)
+pampy = StringVar()
+pampy.set(0.0)
+pampz = StringVar()
+pampz.set(0.0)
+
+pomgx = StringVar()
+pomgx.set(1.0)
+pomgy = StringVar()
+pomgy.set(0.0)
+pomgz = StringVar()
+pomgz.set(0.0)
+
+pphx = StringVar()
+pphx.set(1.0)
+pphy = StringVar()
+pphy.set(0.0)
+pphz = StringVar()
+pphz.set(0.0)
+
+trrx = StringVar()
+trrx.set(1.0)
+trry = StringVar()
+trry.set(0.0)
+trrz = StringVar()
+trrz.set(0.0)
+
+plomgx = StringVar()
+plomgx.set(1.0)
+plomgy = StringVar()
+plomgy.set(0.0)
+plomgz = StringVar()
+plomgz.set(0.0)
+
+plampx = StringVar()
+plampx.set(1.0)
+plampy = StringVar()
+plampy.set(0.0)
+plampz = StringVar()
+plampz.set(0.0)
+
+machmotion = StringVar()
+machmotion.set(0.8)
+
+markmov = StringVar()
+markmov.set(NONE)
+
+movmotorg = StringVar()
+movmotorg.set(0)
+
 def msgentry_comp():
 	f.write("%--------Compressible flow parameters-----------%\n")
 	f.write("REGIME_TYPE= COMPRESSIBLE\n")
@@ -563,6 +642,47 @@ def msgentry_converge():
 	f.write("%--------Convergence criteria-----------%\n")
 	f.write("EXTITER= "+extiter.get()+"\n")
 	f.write("STARTCONV_ITER= "+start_iter.get()+"\n")
+
+
+def msgentry_grdnone():
+	f.write("%--------Grid Movement-----------%\n")
+	f.write("GRID_MOVEMENT= "+gridmov.get()+"\n")
+	
+	
+def msgentry_grdmov():
+	f.write("%--------Grid Movement-----------%\n")
+	f.write("GRID_MOVEMENT= YES\n")
+	f.write("GRID_MOVEMENT_KIND= "+gridkind.get()+"\n")
+	f.write("MARKER_MOVING= "+markmov.get()+"\n")
+	f.write("MACH_MOTION= "+machmotion.get()+"\n")
+	f.write("MOTION_ORIGIN_X="+morgx.get()+"\n")
+	f.write("MOTION_ORIGIN_Y="+morgy.get()+"\n")
+	f.write("MOTION_ORIGIN_Z="+morgz.get()+"\n")
+	f.write("ROTATION_RATE_X="+rrx.get()+"\n")
+	f.write("ROTATION_RATE_Y="+rry.get()+"\n")
+	f.write("ROTATION_RATE_Z="+rrz.get()+"\n")
+	f.write("PITCHING_OMEGA_X="+pomgx.get()+"\n")
+	f.write("PITCHING_OMEGA_Y="+pomgy.get()+"\n")
+	f.write("PITCHING_OMEGA_Z="+pomgz.get()+"\n")
+	f.write("PITCHING_AMPL_X="+pampx.get()+"\n")
+	f.write("PITCHING_AMPL_Y="+pampy.get()+"\n")
+	f.write("PITCHING_AMPL_Z="+pampz.get()+"\n")
+	f.write("PITCHING_PHASE_X="+pphx.get()+"\n")
+	f.write("PITCHING_PHASE_Y="+pphy.get()+"\n")
+	f.write("PITCHING_PHASE_Z="+pphz.get()+"\n")
+	f.write("TRANSLATION_RATE_X="+trrx.get()+"\n")
+	f.write("TRANSLATION_RATE_Y="+trry.get()+"\n")
+	f.write("TRANSLATION_RATE_Z="+trrz.get()+"\n")
+	f.write("PLUNGING_OMEGA_X="+plomgx.get()+"\n")
+	f.write("PLUNGING_OMEGA_Y="+plomgy.get()+"\n")
+	f.write("PLUNGING_OMEGA_Z="+plomgz.get()+"\n")
+	f.write("PLUNGING_AMPL_X="+plampx.get()+"\n")
+	f.write("PLUNGING_AMPL_Y="+plampy.get()+"\n")
+	f.write("PLUNGING_AMPL_Z="+plampz.get()+"\n")
+	f.write("MOVE_MOTION_ORIGIN="+movmotorg.get()+"\n")
+	
+	
+
 
 def msgentry_cauchy():
 	msgentry_converge()
@@ -1420,6 +1540,126 @@ def define_ioinfo():
 
 
 
+def define_grd():
+	grd_win=Toplevel()
+	grd_win.title("Input/Output information")
+	index = 1
+	
+	
+	label2 = Label(grd_win, text="Mach Motion: ")
+	label2.grid(row=index,column=0)
+	entry2 = Entry(grd_win,textvariable=machmotion)
+	entry2.grid(row=index,column=1)
+	index=index+1
+	
+	label3 = Label(grd_win, text="Motion Origin(x,y,z)")
+	label3.grid(row=index,column=0)
+	index = index+1
+
+	entry2 = Entry(grd_win,textvariable=morgx)
+	entry2.grid(row=index,column=0)
+	entry2 = Entry(grd_win,textvariable=morgy)
+	entry2.grid(row=index,column=1)
+	entry2 = Entry(grd_win,textvariable=morgz)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label3 = Label(grd_win, text="Rotation Rate(x,y,z)")
+	label3.grid(row=index,column=0)
+	index = index+1
+
+	entry2 = Entry(grd_win,textvariable=rrx)
+	entry2.grid(row=index,column=0)
+	entry2 = Entry(grd_win,textvariable=rry)
+	entry2.grid(row=index,column=1)
+	entry2 = Entry(grd_win,textvariable=rrz)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label3 = Label(grd_win, text="Pitching Angular freq(rad/s, x,y,z)")
+	label3.grid(row=index,column=0)
+	index = index+1
+
+	entry2 = Entry(grd_win,textvariable=pomgx)
+	entry2.grid(row=index,column=0)
+	entry2 = Entry(grd_win,textvariable=pomgy)
+	entry2.grid(row=index,column=1)
+	entry2 = Entry(grd_win,textvariable=pomgz)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label3 = Label(grd_win, text="Pitching Amplitude, degrees(x,y,z)")
+	label3.grid(row=index,column=0)
+	index = index+1
+
+	entry2 = Entry(grd_win,textvariable=pampx)
+	entry2.grid(row=index,column=0)
+	entry2 = Entry(grd_win,textvariable=pampy)
+	entry2.grid(row=index,column=1)
+	entry2 = Entry(grd_win,textvariable=pampz)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label3 = Label(grd_win, text="Pitching phase offset, degrees(x,y,z)")
+	label3.grid(row=index,column=0)
+	index = index+1
+
+	entry2 = Entry(grd_win,textvariable=pphx)
+	entry2.grid(row=index,column=0)
+	entry2 = Entry(grd_win,textvariable=pphy)
+	entry2.grid(row=index,column=1)
+	entry2 = Entry(grd_win,textvariable=pphz)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label3 = Label(grd_win, text="Translational velocity, m/s(x,y,z)")
+	label3.grid(row=index,column=0)
+	index = index+1
+
+	entry2 = Entry(grd_win,textvariable=trrx)
+	entry2.grid(row=index,column=0)
+	entry2 = Entry(grd_win,textvariable=trry)
+	entry2.grid(row=index,column=1)
+	entry2 = Entry(grd_win,textvariable=trrz)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label3 = Label(grd_win, text="Plunging Angular freq(rad/s, x,y,z)")
+	label3.grid(row=index,column=0)
+	index = index+1
+
+	entry2 = Entry(grd_win,textvariable=plomgx)
+	entry2.grid(row=index,column=0)
+	entry2 = Entry(grd_win,textvariable=plomgy)
+	entry2.grid(row=index,column=1)
+	entry2 = Entry(grd_win,textvariable=plomgz)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label3 = Label(grd_win, text="Plunging Amplitude, degrees(x,y,z)")
+	label3.grid(row=index,column=0)
+	index = index+1
+
+	entry2 = Entry(grd_win,textvariable=plampx)
+	entry2.grid(row=index,column=0)
+	entry2 = Entry(grd_win,textvariable=plampy)
+	entry2.grid(row=index,column=1)
+	entry2 = Entry(grd_win,textvariable=plampz)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	label2 = Label(grd_win, text="Move motion origin for moving marker (1 or 0): ")
+	label2.grid(row=index,columnspan=2)
+	entry2 = Entry(grd_win,textvariable=movmotorg)
+	entry2.grid(row=index,column=2)
+	index=index+1
+	
+	button = Button(grd_win,text="Update cfg file",command=msgentry_grdmov)
+	button.grid(row=index,column=1)
+	index=index+1
+	button = Button(grd_win,text="Back",command=grd_win.destroy)
+	button.grid(row=index,column=1)
+
 index = 1
 label1 = Label(root, text="Problem Type: ")
 label1.grid(row=index,column=0)
@@ -1454,6 +1694,14 @@ label.grid(row=index,column=0)
 button = Button(root,text="Compressible",command=compressible_window)
 button.grid(row=index,column=1)
 button = Button(root,text="Incompressible",command=incompressible_window)
+button.grid(row=index,column=2)
+index+=1
+
+label = Label(root, text="Grid Movement: ")
+label.grid(row=index,column=0)
+button = Button(root,text="None",command=msgentry_grdnone)
+button.grid(row=index,column=1)
+button = Button(root,text="Define",command=define_grd)
 button.grid(row=index,column=2)
 index+=1
 

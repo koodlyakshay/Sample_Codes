@@ -1545,6 +1545,11 @@ def define_grd():
 	grd_win.title("Input/Output information")
 	index = 1
 	
+	label1 = Label(grd_win, text="Type of grid movement: ")
+	label1.grid(row=index,column=0)
+	opt1 = OptionMenu(grd_win,gridkind,*GRIDMOV_OPTIONS)
+	opt1.grid(row=index,column=1)
+	index=index+1
 	
 	label2 = Label(grd_win, text="Mach Motion: ")
 	label2.grid(row=index,column=0)

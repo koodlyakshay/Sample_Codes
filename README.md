@@ -13,3 +13,4 @@ python muli_option_gui.py confile_file_name.cfg
 A config file with the name specified in the command will be genrated. If no such file exists, a ne one is created and if a file by hat name already exists, it will be overwritten.
 
 2. A 1-D scalar equation solver used to test various convection schemes. Convection schemes currently added include first and second order upwind, QUICK, central difference scheme and gamma difference (a type of bounded central difference)
+3. A program to scale SU2 meshes

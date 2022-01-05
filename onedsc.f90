@@ -1,13 +1,18 @@
 ! Solve 1-D scalar advection equation
-!  \partial_t \phi + U \partial_x \phi = 0
-
+! \partial_t \phi + U \partial_x \phi = 0
+! Use FVM integration
+! \int_{\Omega} \partial_t \phi d\Omega = -U\int_{\Omega}\partial_x \phi d\Omega
+! \int_{\Omega} \partial_t \phi d\Omega = Res
+! Choose desired numerical scheme for spatial disc term Res
+! \partial_t \phi \Delta \Omega = Res
+! Choose desired numerical scheme for spatial disc term Res
 module globalvar
 
 implicit none
 
-integer, parameter  :: Nmax=129, scheme=6
+integer, parameter  :: Nmax=513, scheme=5
 integer             :: Nx
-real                :: x(Nmax), xf(Nmax+1), phi(Nmax), phi_n(Nmax), exact(Nmax), dx(Nmax)
+real                :: x(Nmax), xf(Nmax+1), phi(Nmax), phi_n(Nmax), exact(Nmax), dx(Nmax), vol(Nmax)
 real                :: dt, U, Lmax, Lx, Tf, t, theta, bc, exp_ratio, init_dx 
 real                :: phi_nvd, beta, gamma, eps, err, pi
 
@@ -32,7 +37,7 @@ use globalvar
 implicit none
 
 integer   :: i,j,k,stage,nstage
-real      :: phi_e, phi_w, delx
+real      :: phi_e, phi_w, domega
 real      :: resid(Nmax),rkstage(Nmax,4),rkcoeff(3)
     
 
@@ -47,7 +52,7 @@ nstage = 4
 
 call make_mesh
 print*, 'CFL = ',U*dt/minval(dx(1:Nx-1))
-delx = dx(2) ! uniform grid for now
+domega = dx(2) ! uniform grid for now (Volume)
 eps = init_dx/100.0
 pi = 4.0*atan(1.0)
 
@@ -65,7 +70,7 @@ do while (t .le. Tf)
    
     !-- Stage 1 --!
     call compute_residual(resid)
-    rkstage(:,1) = dt*resid(:)/(1.0*delx)
+    rkstage(:,1) = dt*resid(:)/(1.0*vol(:))
    
     !-- Stage 2-4 --!
     do stage = 2,nstage
@@ -74,7 +79,7 @@ do while (t .le. Tf)
 
       call compute_residual(resid)
 
-      rkstage(:,stage) = dt*resid(:)/(1.0*delx)
+      rkstage(:,stage) = dt*resid(:)/(1.0*vol(:))
     enddo
 
     phi_n(:) = phi_n(:) - 1.d0/6.d0*(rkstage(:,1) + 2.0*rkstage(:,2) + 2.0*rkstage(:,3) + rkstage(:,4))
@@ -318,21 +323,29 @@ open(unit = 12, file = 'grid.txt',status='unknown')
 Lmax = 1.0
 init_dx = Lmax/(real(Nmax -1))
 !init_dx = 0.02
-exp_ratio = 1.0!/1.02
+exp_ratio = 1.02
 
-x(1) = 0.0
-xf(1) = 0.0
+x(1) = 0.0  ! Node
+xf(1) = 0.0 ! Face
 do i=2,Nmax
     dx(i-1) = init_dx*(exp_ratio)**(i-2)
     x(i) = x(i-1) + dx(i-1)
     xf(i) = 0.5*(x(i-1) + x(i))
-    write(12,*) i,x(i), dx(i-1)
     if (x(i) .gt. Lmax) exit
 enddo
-
 Nx = min(i,Nmax)
+dx(Nx) = x(Nx) - xf(Nx)
 print*,Nx
+do i=1,Nx-1
+ vol(i) = xf(i+1) - xf(i)
+enddo
+vol(Nx) = x(Nx) - xf(Nx)
+do i=1,Nx
+ write(12,*) i,x(i), xf(i), dx(i), vol(i)
+enddo
 close(12)
+
+
 end subroutine make_mesh
 
 subroutine apply_IC
@@ -371,7 +384,7 @@ use globalvar
 
 implicit none
 
-character(len=8)    :: fname
+character(len=10)    :: fname
 integer             :: i
 
 select case (scheme)
@@ -389,7 +402,7 @@ select case (scheme)
     fname = 'cent.txt'
     case (5)
     ! Bounded central
-    fname = 'bcen.txt'
+    fname = 'bcen3.txt'
     case (6)
     ! FROMM
     fname = 'frmm.txt'
@@ -406,7 +419,7 @@ select case (scheme)
 end select
 
 !Output files
-open(unit = 10, file = fname,status='unknown')
+open(unit = 10, file = fname(1:len_trim(fname)),status='unknown')
 open(unit = 11, file = 'exact.txt',status='unknown')
 
 err = 0.0
@@ -425,5 +438,5 @@ err = sqrt(err/Nx)
 
 print*, err
 close(10)
-!close(11)
+close(11)
 end subroutine writeoutput

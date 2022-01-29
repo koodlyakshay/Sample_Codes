@@ -13,10 +13,11 @@ module globalvar
 
 implicit none
 
-integer, parameter  :: Nmax=257, scheme=2
+integer, parameter  :: Nmax=129, scheme=5
 integer             :: Nx,Ny
 real                :: x(Nmax), y(Nmax), xf(Nmax+1), yf(Nmax+1), dx(Nmax), dy(Nmax),vol(Nmax,Nmax)
 real                :: phi(Nmax,Nmax), phi_n1(Nmax,Nmax), exact(Nmax,Nmax)
+real                :: dphidx(Nmax,Nmax), dphidy(Nmax,Nmax)
 real                :: dt, Ux, Uy, Lxmax, Lx, Lymax, Ly, exp_ratio_x, exp_ratio_y, init_dx, init_dy
 real                :: phi_nvd, beta, gamma, eps, err, pi, Tf, t, theta, bc_x(Nmax), bc_y(Nmax)
 
@@ -44,10 +45,10 @@ real      :: phi_e, phi_w, domega
 real      :: resid(Nmax,Nmax),rkstage(Nmax,Nmax,4),rkcoeff(3)
     
 
-Tf = 0.00001   ! final time
+Tf = 0.5     ! final time
 Ux = 1.0       ! advection velocity x
 Uy = 0.0       ! advection velocity y
-dt = 0.00000025! time step
+dt = 0.00025   ! time step
 beta = 0.1     ! lower limit
 
 rkcoeff = (/5.d-1, 5.d-1, 1.d0/) ! RK coefficients
@@ -107,6 +108,7 @@ implicit none
 integer                 :: k,l,dir
 real, intent (out)      :: res(Nmax,Nmax)
 real                    :: phi_e, phi_w, phi_nr, phi_s
+real                    :: se, sw, sn, ss
 
 ! Assuming U > 0
 !2-D grid arrangement, k is given as input from the main routine, ('o' is a node, '|' is a face)
@@ -132,7 +134,13 @@ select case (scheme)
         phi_w = phi_n1(k-1,l)  ! West face     |       |
         phi_nr = phi_n1(k,l)   ! North face   (w)  o  (e)
         phi_s = phi_n1(k,l-1)  ! South face    |__(s)__|
-        res(k,l) = Ux*(phi_e - phi_w) + Uy*(phi_nr - phi_s)
+        
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
+        
+        res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
       enddo
     enddo
   case (2)
@@ -144,7 +152,13 @@ select case (scheme)
         call general_formula(k-1,l,theta,phi_w,1)  ! West face
         call general_formula(k,l,theta,phi_nr,2)   ! North face
         call general_formula(k,l-1,theta,phi_s,2)  ! South face
-        res(k,l) = Ux*(phi_e - phi_w) + Uy*(phi_nr - phi_s)
+        
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
+        
+        res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
       enddo
     enddo
   case (3)
@@ -156,7 +170,13 @@ select case (scheme)
         call general_formula(k-1,l,theta,phi_w,1)
         call general_formula(k,l,theta,phi_nr,2)
         call general_formula(k,l-1,theta,phi_s,2)
-        res(k,l) = Ux*(phi_e - phi_w) + Uy*(phi_nr - phi_s)
+        
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
+        
+        res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
       enddo
     enddo
   case (4)
@@ -168,7 +188,13 @@ select case (scheme)
         call general_formula(k-1,l,theta,phi_w,1)
         call general_formula(k,l,theta,phi_nr,2)
         call general_formula(k,l-1,theta,phi_s,2)
-        res(k,l) = Ux*(phi_e - phi_w) + Uy*(phi_nr - phi_s)
+        
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
+        
+        res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
       enddo
     enddo
   case (5)
@@ -179,7 +205,13 @@ select case (scheme)
         call bounded_central_scheme(k-1,l,phi_w,1)
         call general_formula(k,l,theta,phi_nr,2)
         call general_formula(k,l-1,theta,phi_s,2)
-        res(k,l) = Ux*(phi_e - phi_w) + Uy*(phi_nr - phi_s)
+        
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
+        
+        res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
       enddo
     enddo
   case (6)
@@ -191,7 +223,13 @@ select case (scheme)
         call general_formula(k-1,l,theta,phi_w,1)
         call general_formula(k,l,theta,phi_nr,2)
         call general_formula(k,l-1,theta,phi_s,2)
-        res(k,l) = Ux*(phi_e - phi_w) + Uy*(phi_nr - phi_s)
+        
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
+        
+        res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
       enddo
     enddo
   case (7)
@@ -202,7 +240,13 @@ select case (scheme)
         call vanalbada(k-1,l,phi_w,1)
         call vanalbada(k,l,phi_nr,2)
         call vanalbada(k,l-1,phi_s,2)
-        res(k,l) = Ux*(phi_e - phi_w) + Uy*(phi_nr - phi_s)
+         
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
+        
+        res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
       enddo
     enddo
     case default
@@ -211,8 +255,8 @@ select case (scheme)
     stop
 end select
 
-!res(1,:) = 0.0
-!res(:,1) = 0.0
+res(1,:) = 0.0
+res(:,1) = 0.0
 
 end subroutine compute_residual
 
@@ -397,6 +441,45 @@ phi_f = ui + 0.5*psi*(up1-ui)
 
 end subroutine vanalbada
 
+!subroutine compute_gradient
+
+!use globalvar
+
+!implicit none
+
+!integer  :: i,j
+!! Find gradient at faces only
+!
+!do i=1,Nx-1
+!  do j=1,Ny-1
+!    dphidx(i,j) = (phi_n1(i+1,j) - phi_n1(i,j))/(x(i+1) - x(i))
+!    dphidy(i,j) = (phi_n1(i,j+1) - phi_n1(i,j))/(y(j+1) - y(j))
+!  enddo
+!enddo
+
+!dphidx(Nx,:) = (phi_n1(Nx,:) - phi_n1(Nx-1,:))/(x(Nx) - x(Nx-1))
+!dphidy(:,Ny) = (phi_n1(:,Ny) - phi_n1(:,Ny-1))/(y(Ny) - y(Ny-1))
+
+!end subroutine compute_gradient
+
+
+!subroutine compute_diffusion_term(res_v)
+
+!use globalvar, only: Nmax,Nx,dphi_n
+
+!integer            :: i,j
+!real, intent (out) :: res_v(Nmax,Nmax)
+
+!res_v = 0.0
+!do i=2,Nx
+!  do j=2,Ny
+!    res_v(i,j) = dphi_n(i) - dphi_n(i-1)
+!  enddo
+!enddo
+
+
+!end subroutine compute_diffusion_term
+
 
 subroutine make_mesh
 
@@ -463,13 +546,16 @@ use globalvar, only: Nx,Ny,phi,phi_n1,x,y,pi
 
 implicit none
 
-real             :: t
+real             :: t, alpha, beta, gam
 integer          :: i,j
 
-
+alpha =-1.0
+beta = 0.5
+gam = 0.5
+phi = 0.0
 do i=1,Nx
   do j=1,Ny
-    phi(i,j) = sin(2*pi*x(i))*sin(2*pi*y(j))
+    if ((x(i) .gt. 0.1) .and. (x(i) .lt. 0.2)) phi(i,j) = 1.0
   enddo
 enddo
 
@@ -494,11 +580,14 @@ use globalvar, only: Nx,Ny,Nmax,phi,phi_n1,x,y
 implicit none
 
 real,intent(in)  :: time
+real             :: alpha, beta, gam
 integer          :: i,j
 
+alpha =-1.0
+beta = 0.5
+gam = 0.5
 
-
-!Apply BC - Periodic BCs
+!Apply BC 
 i=1 !x=0
 do j=1,Ny
   phi_n1(1,j) = phi_n1(Nx,j)
@@ -520,17 +609,23 @@ implicit none
 
 real,intent(in)  :: time
 real             :: exact(Nmax,Nmax),err2d(Nmax,Nmax)
-real             :: norm
+real             :: norm, alpha, beta, gam
 integer          :: i,j
 character(len=20):: fname
+
+alpha =-1.0
+beta = 0.5
+gam = 0.5
 print*,Ux,Uy
+print*,time,Ux*time,Ux*time+0.1
+exact = 0.0
 do i=1,Nx
   do j=1,Ny
-    exact(i,j) = sin(2*pi*(x(i)-Ux*time))*sin(2*pi*(y(j)-Uy*time))!exp(alpha*time+beta*x(i)+gam*y(j))
+    if ((x(i) .gt. 0.1+Ux*time) .and. (x(i) .lt. 0.2+Ux*time)) exact(i,j) = 1.0
   enddo
 enddo
 
-fname = '2d/exact.vtk'
+fname = 'out/exact.vtk'
 call writeheader(fname)
 
 call writevariable(fname, exact)
@@ -558,25 +653,25 @@ character(len=20)    :: fname
 select case (scheme)
     case (1)
     ! First order upwind
-    fname = '2d/foup.vtk'
+    fname = 'out/foup.vtk'
     case (2)
     ! Second order upwind
-    fname = '2d/soup.vtk'
+    fname = 'out/soup.vtk'
     case (3)
     ! QUICK
-    fname = '2d/quik513.vtk'
+    fname = 'out/quik513.vtk'
     case (4)
     ! Central
-    fname = '2d/cent.vtk'
+    fname = 'out/cent.vtk'
     case (5)
     ! Bounded central
-    fname = '2d/bcen.vtk'
+    fname = 'out/bcen.vtk'
     case (6)
     ! FROMM
-    fname = '2d/frmm.vtk'
+    fname = 'out/frmm.vtk'
     case (7)
     ! van albada
-    fname = '2d/vaal.vtk'
+    fname = 'out/vaal.vtk'
     case default
     ! Wrong option
         print*, 'Wrong convective scheme choice, set scheme between 1 to 6'

@@ -443,7 +443,7 @@ do i=1,Nx-1
   dphi_n(i) = (phi_n(i+1) - phi_n(i))/(x(i+1) - x(i))
 enddo
 
-dphi_n(Nx) = (phi_n(i) - phi_n(i-1))/(x(i) - x(i-1))
+dphi_n(Nx) = (phi_n(Nx) - phi_n(Nx-1))/(x(i) - x(i-1))
 
 end subroutine compute_gradient
 

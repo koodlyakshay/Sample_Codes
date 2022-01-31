@@ -1,23 +1,23 @@
-! Solve 2-D scalar advection equation
-! \partial_t \phi + Ux \partial_x \phi + Uy \partial_y \phi = 0
+! Solve 2-D scalar advection diffusion equation
+! \partial_t \phi + Ux \partial_x \phi + Uy \partial_y \phi = \mu (\partial_x^2 \phi+ \partial_x^2 \phi)
 ! Use FVM integration
-! \int_{\Omega} \partial_t \phi d\Omega = -\int_{\Omega}(Ux\partial_x \phi + Uy\partial_y \phi )d\Omega
+! \int_{\Omega} \partial_t \phi d\Omega = -\int_{\Omega}(Ux\partial_x \phi + Uy\partial_y \phi -\mu (\partial_x^2 \phi+ \partial_x^2 \phi))d\Omega
 ! \int_{\Omega} \partial_t \phi d\Omega = Res
 ! Choose desired numerical scheme for spatial disc term Res
 ! \partial_t \phi \Delta \Omega = Res
 ! RK4 time discretization
-!
-! Exact solution phi = sin(2pi(x-Ux.t))sin(2pi(y-Uy.t))
+! u = Dx*beta - alpha/(2beta), v = Dy*gamma - alpha/(2gamma)
+! Exact solution phi = exp(alpha*t + beta*x + gamma*y)
 ! Periodic BC
 module globalvar
 
 implicit none
 
-integer, parameter  :: Nmax=129, scheme=2
+integer, parameter  :: Nmax=257, scheme=2
 integer             :: Nx,Ny
 real                :: x(Nmax), y(Nmax), xf(Nmax+1), yf(Nmax+1), dx(Nmax), dy(Nmax),vol(Nmax,Nmax)
 real                :: phi(Nmax,Nmax), phi_n1(Nmax,Nmax), exact(Nmax,Nmax)
-real                :: dphidx(Nmax,Nmax), dphidy(Nmax,Nmax)
+real                :: dphidx(Nmax,Nmax), dphidy(Nmax,Nmax), mu
 real                :: dt, Ux, Uy, Lxmax, Lx, Lymax, Ly, exp_ratio_x, exp_ratio_y, init_dx, init_dy
 real                :: phi_nvd, beta, gamma, eps, err, pi, Tf, t, theta, bc_x(Nmax), bc_y(Nmax)
 
@@ -41,15 +41,15 @@ use globalvar
 implicit none
 
 integer   :: i,j,k,stage,nstage
-real      :: phi_e, phi_w, domega
 real      :: resid(Nmax,Nmax),rkstage(Nmax,Nmax,4),rkcoeff(3)
     
 
-Tf = 0.5     ! final time
-Ux = 0.0       ! advection velocity x
+Tf = 0.5       ! final time
+Ux = 1.0       ! advection velocity x
 Uy = 1.0       ! advection velocity y
-dt = 0.00025   ! time step
+dt = 0.000025   ! time step
 beta = 0.1     ! lower limit
+mu = 0.0001       ! diffusion coefficient
 
 rkcoeff = (/5.d-1, 5.d-1, 1.d0/) ! RK coefficients
 nstage = 4
@@ -61,7 +61,6 @@ eps = init_dx/100.0
 pi = 4.0*atan(1.0)
 
 call apply_IC
-
 
 do while (t .le. Tf)
     !BC
@@ -83,7 +82,9 @@ do while (t .le. Tf)
       rkstage(:,:,stage) = dt*resid(:,:)/(1.0*vol(:,:))
     enddo
 
-    phi_n1(:,:) = phi_n1(:,:) - 1.d0/6.d0*(rkstage(:,:,1) + 2.0*rkstage(:,:,2) + 2.0*rkstage(:,:,3) + rkstage(:,:,4))
+    phi_n1(:,:) = phi_n1(:,:) - 1.d0/6.d0*(rkstage(:,:,1) + 2.d0*rkstage(:,:,2) + 2.d0*rkstage(:,:,3) + rkstage(:,:,4))
+    
+    call compute_gradient
     
     t = t + dt
     
@@ -105,7 +106,7 @@ use globalvar
 
 implicit none
 
-integer                 :: k,l,dir
+integer                 :: k,l
 real, intent (out)      :: res(Nmax,Nmax)
 real                    :: phi_e, phi_w, phi_nr, phi_s
 real                    :: se, sw, sn, ss
@@ -130,123 +131,143 @@ select case (scheme)
   ! First order upwind
     do k=2,Nx
       do l=2,Ny
-        phi_e = phi_n1(k,l)    ! East face      __(n)__
-        phi_w = phi_n1(k-1,l)  ! West face     |       |
-        phi_nr = phi_n1(k,l)   ! North face   (w)  o  (e)
-        phi_s = phi_n1(k,l-1)  ! South face    |__(s)__|
-        
         se = yf(l) - yf(l-1)
         sw = yf(l) - yf(l-1)
         sn = xf(k) - xf(k-1)
         ss = xf(k) - xf(k-1)
-        
+
+        phi_e = phi_n1(k,l)    ! East face      __(n)__
+        phi_w = phi_n1(k-1,l)  ! West face     |       |
+        phi_nr = phi_n1(k,l)   ! North face   (w)  o  (e)
+        phi_s = phi_n1(k,l-1)  ! South face    |__(s)__|
+
+        !Convection term
         res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
+        !Diffusion term
+        res(k,l) = res(k,l) - mu*(dphidx(k,l)*se - dphidx(k-1,l)*sw + dphidy(k,l)*sn - dphidy(k,l-1)*ss)
       enddo
     enddo
   case (2)
   ! Second order upwind
     do k=2,Nx
       do l=2,Ny
-        theta = 0.0
-        call general_formula(k,l,theta,phi_e,1)    ! East face
-        call general_formula(k-1,l,theta,phi_w,1)  ! West face
-        call general_formula(k,l,theta,phi_nr,2)   ! North face
-        call general_formula(k,l-1,theta,phi_s,2)  ! South face
-        
         se = yf(l) - yf(l-1)
         sw = yf(l) - yf(l-1)
         sn = xf(k) - xf(k-1)
         ss = xf(k) - xf(k-1)
         
+        theta = 0.0
+        call general_formula(k,l,theta,phi_e,1)    ! East face
+        call general_formula(k-1,l,theta,phi_w,1)  ! West face
+        call general_formula(k,l,theta,phi_nr,2)   ! North face
+        call general_formula(k,l-1,theta,phi_s,2)  ! South face
+
+        !Convection term
         res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
+        !Diffusion term
+        res(k,l) = res(k,l) - mu*(dphidx(k,l)*se - dphidx(k-1,l)*sw + dphidy(k,l)*sn - dphidy(k,l-1)*ss)
       enddo
     enddo
   case (3)
   ! QUICK
     do k=2,Nx
       do l=2,Ny
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
+        
         theta = 1.0/8.0
         call general_formula(k,l,theta,phi_e,1)
         call general_formula(k-1,l,theta,phi_w,1)
         call general_formula(k,l,theta,phi_nr,2)
         call general_formula(k,l-1,theta,phi_s,2)
         
-        se = yf(l) - yf(l-1)
-        sw = yf(l) - yf(l-1)
-        sn = xf(k) - xf(k-1)
-        ss = xf(k) - xf(k-1)
-        
+        !Convection term
         res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
+        !Diffusion term
+        res(k,l) = res(k,l) - mu*(dphidx(k,l)*se - dphidx(k-1,l)*sw + dphidy(k,l)*sn - dphidy(k,l-1)*ss)
       enddo
     enddo
   case (4)
   ! Central
     do k=2,Nx
       do l=2,Ny
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
         theta = 1.0
         call general_formula(k,l,theta,phi_e,1)
         call general_formula(k-1,l,theta,phi_w,1)
         call general_formula(k,l,theta,phi_nr,2)
         call general_formula(k,l-1,theta,phi_s,2)
-        
-        se = yf(l) - yf(l-1)
-        sw = yf(l) - yf(l-1)
-        sn = xf(k) - xf(k-1)
-        ss = xf(k) - xf(k-1)
-        
+                
+        !Convection term
         res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
+        !Diffusion term
+        res(k,l) = res(k,l) - mu*(dphidx(k,l)*se - dphidx(k-1,l)*sw + dphidy(k,l)*sn - dphidy(k,l-1)*ss)
       enddo
     enddo
   case (5)
   ! Bounded central
     do k=2,Nx
       do l=2,Ny
-        call bounded_central_scheme(k,l,phi_e,1)
-        call bounded_central_scheme(k-1,l,phi_w,1)
-        call general_formula(k,l,theta,phi_nr,2)
-        call general_formula(k,l-1,theta,phi_s,2)
-        
         se = yf(l) - yf(l-1)
         sw = yf(l) - yf(l-1)
         sn = xf(k) - xf(k-1)
         ss = xf(k) - xf(k-1)
-        
+                
+        call bounded_central_scheme(k,l,phi_e,1)
+        call bounded_central_scheme(k-1,l,phi_w,1)
+        call general_formula(k,l,theta,phi_nr,2)
+        call general_formula(k,l-1,theta,phi_s,2)
+                
+        !Convection term
         res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
+        !Diffusion term
+        res(k,l) = res(k,l) - mu*(dphidx(k,l)*se - dphidx(k-1,l)*sw + dphidy(k,l)*sn - dphidy(k,l-1)*ss)
       enddo
     enddo
   case (6)
   ! FROMM
     do k=2,Nx
       do l=2,Ny
+        se = yf(l) - yf(l-1)
+        sw = yf(l) - yf(l-1)
+        sn = xf(k) - xf(k-1)
+        ss = xf(k) - xf(k-1)
+        
         theta = 0.5
         call general_formula(k,l,theta,phi_e,1)
         call general_formula(k-1,l,theta,phi_w,1)
         call general_formula(k,l,theta,phi_nr,2)
         call general_formula(k,l-1,theta,phi_s,2)
         
-        se = yf(l) - yf(l-1)
-        sw = yf(l) - yf(l-1)
-        sn = xf(k) - xf(k-1)
-        ss = xf(k) - xf(k-1)
-        
+        !Convection term
         res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
+        !Diffusion term
+        res(k,l) = res(k,l) - mu*(dphidx(k,l)*se - dphidx(k-1,l)*sw + dphidy(k,l)*sn - dphidy(k,l-1)*ss)
       enddo
     enddo
   case (7)
   ! van albada
     do k=2,Nx
       do l=2,Ny
-        call vanalbada(k,l,phi_e,1)
-        call vanalbada(k-1,l,phi_w,1)
-        call vanalbada(k,l,phi_nr,2)
-        call vanalbada(k,l-1,phi_s,2)
-         
         se = yf(l) - yf(l-1)
         sw = yf(l) - yf(l-1)
         sn = xf(k) - xf(k-1)
         ss = xf(k) - xf(k-1)
         
+        call vanalbada(k,l,phi_e,1)
+        call vanalbada(k-1,l,phi_w,1)
+        call vanalbada(k,l,phi_nr,2)
+        call vanalbada(k,l-1,phi_s,2)
+
+        !Convection term
         res(k,l) = Ux*(phi_e*se - phi_w*sw) + Uy*(phi_nr*sn - phi_s*ss)
+        !Diffusion term
+        res(k,l) = res(k,l) - mu*(dphidx(k,l)*se - dphidx(k-1,l)*sw + dphidy(k,l)*sn - dphidy(k,l-1)*ss)
       enddo
     enddo
     case default
@@ -441,44 +462,34 @@ phi_f = ui + 0.5*psi*(up1-ui)
 
 end subroutine vanalbada
 
-!subroutine compute_gradient
+subroutine compute_gradient
 
-!use globalvar
+use globalvar
 
-!implicit none
+implicit none
 
-!integer  :: i,j
-!! Find gradient at faces only
-!
-!do i=1,Nx-1
-!  do j=1,Ny-1
-!    dphidx(i,j) = (phi_n1(i+1,j) - phi_n1(i,j))/(x(i+1) - x(i))
-!    dphidy(i,j) = (phi_n1(i,j+1) - phi_n1(i,j))/(y(j+1) - y(j))
-!  enddo
-!enddo
+integer  :: i,j
+! Find gradient at faces only
 
-!dphidx(Nx,:) = (phi_n1(Nx,:) - phi_n1(Nx-1,:))/(x(Nx) - x(Nx-1))
-!dphidy(:,Ny) = (phi_n1(:,Ny) - phi_n1(:,Ny-1))/(y(Ny) - y(Ny-1))
+do i=2,Nx
+  do j=2,Ny
+    dphidx(i,j) = (phi_n1(i,j) - phi_n1(i-1,j))/(x(i) - x(i-1))
+    dphidy(i,j) = (phi_n1(i,j) - phi_n1(i,j-1))/(y(j) - y(j-1))
+  enddo
+enddo
 
-!end subroutine compute_gradient
+dphidx(1,:) = (phi_n1(2,:) - phi_n1(1,:))/(x(2) - x(1))
+j=1
+do i=2,Nx
+  dphidx(i,j) = (phi_n1(i,j) - phi_n1(i-1,j))/(x(i) - x(i-1))
+enddo
 
-
-!subroutine compute_diffusion_term(res_v)
-
-!use globalvar, only: Nmax,Nx,dphi_n
-
-!integer            :: i,j
-!real, intent (out) :: res_v(Nmax,Nmax)
-
-!res_v = 0.0
-!do i=2,Nx
-!  do j=2,Ny
-!    res_v(i,j) = dphi_n(i) - dphi_n(i-1)
-!  enddo
-!enddo
-
-
-!end subroutine compute_diffusion_term
+dphidy(:,1) = (phi_n1(:,2) - phi_n1(:,1))/(y(2) - y(1))
+i=1
+do j=2,Ny
+  dphidy(i,j) = (phi_n1(i,j) - phi_n1(i,j-1))/(y(j) - y(j-1))
+enddo
+end subroutine compute_gradient
 
 
 subroutine make_mesh
@@ -549,27 +560,30 @@ implicit none
 real             :: t, alpha, beta, gam
 integer          :: i,j
 
-alpha =-1.0
+alpha =-0.5
 beta = 0.5
 gam = 0.5
+t = 0.0
 phi = 0.0
 do i=1,Nx
   do j=1,Ny
     if ((y(j) .gt. 0.1) .and. (y(j) .lt. 0.2)) phi(i,j) = 1.0
+    !phi(i,j) = exp(alpha*t + beta*x(i) + gam*y(j))
   enddo
 enddo
 
 !Apply BC
-i=1 !x=0
-do j=1,Ny
-  phi(i,j) = 0.0 
-enddo
-j=1 !y=0
-do i=1,Nx
-  phi(i,j) = 0.0 
-enddo
+!i=1 !x=0
+!do j=1,Ny
+! phi(i,j) = 0.0 
+!enddo
+!j=1 !y=0
+!do i=1,Nx
+!  phi(i,j) = 0.0 
+!enddo
 phi_n1 = phi
 
+call compute_gradient
 
 end subroutine apply_IC
 
@@ -583,18 +597,18 @@ real,intent(in)  :: time
 real             :: alpha, beta, gam
 integer          :: i,j
 
-alpha =-1.0
+alpha =-0.5
 beta = 0.5
 gam = 0.5
 
 !Apply BC 
 i=1 !x=0
 do j=1,Ny
-  phi_n1(1,j) = phi_n1(Nx,j)
+  phi_n1(1,j) = phi_n1(Nx,j)!exp(alpha*time + beta*x(i) + gam*y(j))!
 enddo
 j=1 !y=0
 do i=1,Nx
-  phi_n1(i,1) = phi_n1(i,Ny)
+  phi_n1(i,1) = phi_n1(i,Ny)!exp(alpha*time + beta*x(i) + gam*y(j))!
 enddo
 
 phi = phi_n1
@@ -611,24 +625,24 @@ real,intent(in)  :: time
 real             :: exact(Nmax,Nmax),err2d(Nmax,Nmax)
 real             :: norm, alpha, beta, gam
 integer          :: i,j
-character(len=20):: fname
+character(len=20):: fname,vname
 
-alpha =-1.0
+alpha =-0.5
 beta = 0.5
 gam = 0.5
 print*,Ux,Uy
-print*,time,Ux*time,Ux*time+0.1
 exact = 0.0
 do i=1,Nx
   do j=1,Ny
     if ((y(j) .gt. 0.1+Uy*time) .and. (y(j) .lt. 0.2+Uy*time)) exact(i,j) = 1.0
+    !exact(i,j) = exp(alpha*time + beta*x(i) + gam*y(j))
   enddo
 enddo
 
 fname = 'out/exact.vtk'
 call writeheader(fname)
-
-call writevariable(fname, exact)
+vname = 'phi'
+call writevariable(fname, exact,vname)
 
 err2d = abs(exact - phi)
 norm = 0.0
@@ -648,7 +662,7 @@ use globalvar
 
 implicit none
 
-character(len=20)    :: fname
+character(len=20)    :: fname,vname
 
 select case (scheme)
     case (1)
@@ -682,7 +696,16 @@ end select
 call writeheader(fname)
 
 !--- Write solution data ---!
-call writevariable(fname,phi)
+vname='phi'
+call writevariable(fname,phi,vname)
+
+!--- Write solution data ---!
+!vname='dphidx'
+!call writevariable(fname,dphidx,vname)
+
+!--- Write solution data ---!
+!vname = 'dphidy'
+!call writevariable(fname,dphidy,vname)
 
 end subroutine writeoutput
 
@@ -721,13 +744,14 @@ enddo
 close(100)
 end subroutine writeheader
 
-subroutine writevariable(fname,var)
+subroutine writevariable(fname,var,vname)
 
 use globalvar, only: Nx,Ny,Nmax
 
 implicit none
 
-character(len=20),intent(in)    :: fname
+character(len=20),intent(in)    :: fname,vname
+character(len=100)              :: header
 real,intent(in)                 :: var(Nmax,Nmax)
 integer                         :: i,j
 
@@ -736,7 +760,7 @@ integer                         :: i,j
 open(unit=100,file=fname(1:len_trim(fname)),status='old',position='append')
 write(100,'(A10,A,I6)') 'POINT_DATA',achar(9), Nx*Ny
 
-write(100,'(a)') 'SCALARS Phi double 1'
+write(100,'(a)') 'SCALARS '//vname(1:len_trim(vname))//' double 1'
 write(100,'(a)') 'LOOKUP_TABLE default'
 
 do i=1,Nx
